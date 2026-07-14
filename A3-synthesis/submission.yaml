@@ -1,1 +1,10 @@
-# Placeholder - will be replaced with actual submission.yaml
+schema_version: 1
+team_name: 思路全队
+tool_name: LightSynth
+development_track: open_source_based
+build_target: build
+synth_target: synth
+tool_entry: bin/synth_tool
+point_config: config.json
+originality_declaration: ORIGINALITY_DECLARATION.md
+third_party_manifest: THIRD_PARTY.md

@@ -1,1 +1,13 @@
-{ "placeholder": true }
+{
+  "$default": [{"name":"fallback","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV01": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV02": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV03": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"},{"name":"p2","abc_sequence":"strash; rewrite -z; refactor -z; balance; map -a"},{"name":"p3","abc_sequence":"strash; resyn2; balance; map -a"},{"name":"p4","abc_sequence":"strash; balance; rewrite; refactor; map"},{"name":"p5","abc_sequence":"strash; resyn2; if -K 4 -g; balance; dch; map -D"}],
+  "LSV04": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"},{"name":"p2","abc_sequence":"strash; rewrite -z; refactor -z; balance; map -a"},{"name":"p3","abc_sequence":"strash; resyn2; balance; map -a"},{"name":"p4","abc_sequence":"strash; balance; rewrite; refactor; balance; rewrite; refactor; map -D"},{"name":"p5","abc_sequence":"strash; resyn2; if -K 4 -g; balance; dch; map -D"}],
+  "LSV05": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV06": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV07": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV08": [{"name":"p1","abc_sequence":"strash; balance; rewrite; refactor; map"}],
+  "LSV09": [{"name":"p1","abc_sequence":"strash; resyn2; dch; topo; map -D 100; buffer; upmap;"},{"name":"p2","abc_sequence":"strash; choice2; dot; topo; amap -D 100; buffer;"}],
+  "LSV10": [{"name":"p1","abc_sequence":"strash; resyn2; dch; topo; map -D 100; buffer; upmap;"},{"name":"p2","abc_sequence":"strash; choice2; dot; topo; amap -D 100; buffer;"}]
+}

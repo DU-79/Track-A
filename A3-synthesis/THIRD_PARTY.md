@@ -1,3 +1,6 @@
-# Third Party Dependencies
+# 第三方依赖声明
 
-Placeholder - will be replaced with actual third-party list.
+- **工具名称**: Yosys
+- **版本**: v0.9 (或以上)
+- **许可证**: ISC License
+- **调用边界**: 作为基础逻辑综合工具，由项目根目录的 `Makefile` 和 `run_yosys.ys` 脚本进行外部调用。项目未修改其原始源码。
