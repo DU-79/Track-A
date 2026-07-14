@@ -1,7 +1,9 @@
-# Track-A: EDA Tools
+# Track A 提交仓库
 
-Track A of the competition, with three sub-problems:
+队伍编号：`team-a-013`
 
-- **A1** - Lightweight RTL Simulator
-- **A2** - Verification Environment Generator
-- **A3** - Lightweight RTL Logic Synthesis Tool
+仓库初始化时只有本 `README.md`。请将参赛作品直接提交到 `main` 分支，可以提交源码文件，
+也可以提交 `.zip` 文件。
+
+文件和目录格式不限，仅需遵守 GitHub 的限制：单个文件不得超过 100 MiB。主办方会在截止时
+直接收集 `main` 分支内容，不做额外格式检查。
