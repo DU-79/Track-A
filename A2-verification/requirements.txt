@@ -1,1 +1,1 @@
-# Placeholder - will be replaced with actual A2 dependencies
+cocotb>=2.0
