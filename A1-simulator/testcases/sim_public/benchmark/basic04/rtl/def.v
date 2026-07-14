@@ -1,2 +1,0 @@
-`define BASIC_WIDTH 8
-`define BASIC_DEPTH 16

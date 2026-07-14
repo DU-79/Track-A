@@ -1,2 +1,0 @@
-rtl/axis_fifo.v
-tb/tb.v

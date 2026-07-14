@@ -1,2 +1,0 @@
-rtl/priority_encoder.v
-tb/tb.v
