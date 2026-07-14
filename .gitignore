@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Build artifacts
+*.o
+*.obj
+*.exe
+build/
+
+# Temp files
+parser.out
+parsetab.py
+
+# A1
+A1-simulator/slang-7.0.zip
+A1-simulator/slang-7.0/
+A1-simulator/results/
+A1-simulator/sim/build/
+A1-simulator/sim/simulator
+
+# A2
+A2-verification/.venv/
+A2-verification/venv/
+A2-verification/output/
+A2-verification/submission_output/
+A2-verification/ubuntu_test_output/
+
+# A3
+.venv/
+venv/
+__pycache__/

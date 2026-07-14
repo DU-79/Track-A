@@ -1,0 +1,15 @@
+Command: /workspace/public_dataset/case2/./vcs_coverage_20260711/simv +vcs+initreg+0 -cm line+branch -cm_dir vcs_coverage_20260711/coverage.vdb -l vcs_coverage_20260711/sim.log
+Chronologic VCS simulator copyright 1991-2018
+Contains Synopsys proprietary information.
+Compiler version O-2018.09-SP2_Full64; Runtime version O-2018.09-SP2_Full64;  Jul 11 10:54 2026
+PASS cycles=7403
+$finish called from file "tb/case2_tb.v", line 226.
+$finish at simulation time             74030000
+
+---------------------------------------------------------------------------
+VCS Coverage Metrics: during simulation line, branch was monitored
+---------------------------------------------------------------------------
+           V C S   S i m u l a t i o n   R e p o r t 
+Time: 74030000 ps
+CPU Time:      0.230 seconds;       Data structure size:   0.0Mb
+Sat Jul 11 10:54:46 2026
