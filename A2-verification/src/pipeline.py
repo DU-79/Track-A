@@ -13,7 +13,7 @@ from generator.coverage_bins import generate_coverage_bins
 from generator.functional_coverage import generate_functional_coverage
 from generator.coverage_result import generate_coverage_result
 from generator.report import generate_report
-from generator.tb_generator import generate_cocotb_top, generate_cocotb_tb
+from generator.tb_generator import generate_cocotb_top, generate_cocotb_tb, generate_sv_tb_top, generate_sv_driver, generate_sv_monitor
 from utils.helpers import save_json, find_verilog_files, find_top_module
 
 
@@ -173,6 +173,16 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 """
         with open(os.path.join(tb_dir, "Makefile"), "w") as f:
             f.write(makefile)
+
+        # Generate competition submission SV files (generated/tb/)
+        sv_dir = os.path.join(out_dir, "generated", "tb")
+        os.makedirs(sv_dir, exist_ok=True)
+        with open(os.path.join(sv_dir, "tb_top.sv"), "w") as f:
+            f.write(generate_sv_tb_top(top_module, design_info, args.seed, args.num_seq, args.clock_period))
+        with open(os.path.join(sv_dir, "generated_driver.sv"), "w") as f:
+            f.write(generate_sv_driver(design_info, args.seed, args.num_seq, args.clock_period))
+        with open(os.path.join(sv_dir, "generated_monitor.sv"), "w") as f:
+            f.write(generate_sv_monitor(design_info, args.seed, args.num_seq, args.clock_period))
 
         stages.append({"stage": "testbench_generation", "status": "passed"})
     except Exception as e:

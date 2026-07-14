@@ -1033,3 +1033,208 @@ def generate_cocotb_top(top_module, all_modules):
     lines.append("")
     lines.append("endmodule")
     return "\n".join(lines) + "\n"
+
+
+# ── Competition submission format: extra SV files ──
+
+
+def generate_sv_tb_top(top_module, design_info, seed, num_seq, clock_period=10):
+    """Generate tb_top.sv: instantiates DUT + clock/reset."""
+    d = design_info["design"]
+    clk = d["clock"]["name"] if d["clock"] else "clk"
+    rst_names = [r["name"] for r in d.get("all_resets", [])]
+    rst_name = rst_names[0] if rst_names else "rst_n"
+    rst_active = d.get("reset", {}).get("active_level", 1)
+    rst_val = "1'b0" if rst_active == 0 else "1'b1"
+    rst_deval = "1'b1" if rst_active == 0 else "1'b0"
+
+    interfaces = d.get("interfaces", [])
+    inputs = []
+    outputs = []
+    for iface in interfaces:
+        for s in iface.get("signals", []):
+            if iface.get("role") == "input_driver":
+                inputs.append(s["name"])
+            else:
+                outputs.append(s["name"])
+
+    # Port declarations and connections
+    port_decls = []
+    port_conns = []
+    port_wires = []
+    for p in top_module.ports:
+        if p.width:
+            port_decls.append(f"  {p.direction} [{p.width}] {p.name}")
+            port_wires.append(f"  wire [{p.width}] {p.name};")
+        else:
+            port_decls.append(f"  {p.direction} {p.name}")
+            port_wires.append(f"  wire {p.name};")
+        port_conns.append(f"    .{p.name}({p.name})")
+
+    lines = []
+    lines.append("`timescale 1ns/1ps")
+    lines.append("")
+    lines.append(f"module tb_top;")
+    lines.append("")
+    lines.append(f"  reg {clk} = 0;")
+    lines.append(f"  reg {rst_name} = {rst_val};")
+    for w in port_wires:
+        lines.append(w)
+    lines.append("")
+    lines.append(f"  always #({int(clock_period/2)}.0) {clk} = ~{clk};")
+    lines.append("")
+    lines.append("  initial begin")
+    for rn in rst_names:
+        lines.append(f"    {rn} = {rst_val};")
+    lines.append(f"    #({clock_period * 5:.1f});")
+    for rn in rst_names:
+        lines.append(f"    {rn} = {rst_deval};")
+    lines.append(f"    #({clock_period * 5:.1f});")
+    lines.append("  end")
+    lines.append("")
+    lines.append(f"  {top_module.name} dut (")
+    lines.append(",\n".join(port_conns))
+    lines.append("  );")
+    lines.append("")
+    # Driver
+    driver_ports = [f".{clk}({clk})", f".{rst_name}({rst_name})"]
+    for s in inputs:
+        driver_ports.append(f".{s}({s})")
+    for s in outputs:
+        driver_ports.append(f".{s}({s})")
+    lines.append("  generated_driver driver (")
+    lines.append(",\n".join(f"    {dp}" for dp in driver_ports))
+    lines.append("  );")
+    lines.append("")
+    # Monitor
+    monitor_ports = [f".{clk}({clk})", f".{rst_name}({rst_name})"]
+    for s in outputs:
+        monitor_ports.append(f".{s}({s})")
+    lines.append("  generated_monitor monitor (")
+    lines.append(",\n".join(f"    {mp}" for mp in monitor_ports))
+    lines.append("  );")
+    lines.append("")
+    lines.append("  initial begin")
+    lines.append('    $dumpfile("dump.vcd");')
+    lines.append("    $dumpvars(0, tb_top);")
+    lines.append(f"    #{clock_period * (num_seq + 20):.0f};")
+    lines.append('    $display("PASS: simulation complete");')
+    lines.append("    $finish;")
+    lines.append("  end")
+    lines.append("")
+    lines.append("endmodule")
+    return "\n".join(lines)
+
+
+def generate_sv_driver(design_info, seed, num_seq, clock_period=10):
+    """Generate generated_driver.sv: LFSR-based stimulus."""
+    d = design_info["design"]
+    clk = d["clock"]["name"] if d["clock"] else "clk"
+    rst_names = [r["name"] for r in d.get("all_resets", [])]
+    rst_name = rst_names[0] if rst_names else "rst_n"
+
+    interfaces = d.get("interfaces", [])
+    inputs = []
+    outputs = []
+    for iface in interfaces:
+        for s in iface.get("signals", []):
+            if iface.get("role") == "input_driver":
+                inputs.append(s["name"])
+            else:
+                outputs.append(s["name"])
+
+    # Individual port declarations
+    input_ports = []
+    for s in inputs:
+        width = ""
+        for p in d.get("ports_detail", []):
+            if p.get("name") == s:
+                width = p.get("width", "")
+                break
+        if width:
+            input_ports.append(f"  output reg [{width}] {s},")
+        else:
+            input_ports.append(f"  output reg {s},")
+
+    lines = []
+    lines.append("`timescale 1ns/1ps")
+    lines.append("")
+    lines.append("module generated_driver (")
+    lines.append(f"  input wire {clk},")
+    lines.append(f"  input wire {rst_name},")
+    for ip in input_ports:
+        lines.append(ip)
+    for s in outputs:
+        lines.append(f"  input wire {s},")
+    lines[-1] = lines[-1].rstrip(",")
+    lines.append(");")
+    lines.append("")
+    lines.append(f"  parameter SEED = {seed};")
+    lines.append(f"  parameter NUM_SEQ = {num_seq};")
+    lines.append("")
+    lines.append("  reg [15:0] lfsr;")
+    lines.append("  reg [31:0] seq_cnt;")
+    lines.append("")
+    lines.append("  function [15:0] lfsr_next;")
+    lines.append("    input [15:0] state;")
+    lines.append("    lfsr_next = {state[14:0], state[15] ^ state[13] ^ state[11] ^ state[5]};")
+    lines.append("  endfunction")
+    lines.append("")
+    lines.append(f"  always @(posedge {clk} or negedge {rst_name}) begin")
+    lines.append(f"    if (!{rst_name}) begin")
+    for s in inputs:
+        lines.append(f"      {s} <= 0;")
+    lines.append("      lfsr <= SEED;")
+    lines.append("      seq_cnt <= 0;")
+    lines.append("    end else begin")
+    lines.append("      lfsr <= lfsr_next(lfsr);")
+    lines.append("      if (seq_cnt < NUM_SEQ) begin")
+    lines.append("        seq_cnt <= seq_cnt + 1;")
+    for s in inputs:
+        lines.append(f"        {s} <= lfsr_next(lfsr)[11:0];")
+    lines.append("      end")
+    lines.append("    end")
+    lines.append("  end")
+    lines.append("")
+    lines.append("endmodule")
+    return "\n".join(lines)
+
+
+def generate_sv_monitor(design_info, seed, num_seq, clock_period=10):
+    """Generate generated_monitor.sv: output signal monitoring."""
+    d = design_info["design"]
+    clk = d["clock"]["name"] if d["clock"] else "clk"
+    rst_names = [r["name"] for r in d.get("all_resets", [])]
+    rst_name = rst_names[0] if rst_names else "rst_n"
+
+    interfaces = d.get("interfaces", [])
+    outputs = []
+    for iface in interfaces:
+        for s in iface.get("signals", []):
+            if iface.get("role") == "output_monitor":
+                outputs.append(s["name"])
+
+    lines = []
+    lines.append("`timescale 1ns/1ps")
+    lines.append("")
+    lines.append("module generated_monitor (")
+    lines.append(f"  input wire {clk},")
+    lines.append(f"  input wire {rst_name},")
+    for i, s in enumerate(outputs):
+        comma = "," if i < len(outputs) - 1 else ""
+        lines.append(f"  input wire {s}{comma}")
+    lines.append(");")
+    lines.append("")
+    if outputs:
+        lines.append(f"  always @(posedge {clk}) begin")
+        lines.append(f"    if (!{rst_name} && $time > 1) begin")
+        for s in outputs:
+            lines.append(f'      $display("[MONITOR] {s} = 0x%x", {s});')
+        lines.append("    end")
+        lines.append("  end")
+    else:
+        lines.append(f"  always @(posedge {clk}) begin")
+        lines.append("  end")
+    lines.append("")
+    lines.append("endmodule")
+    return "\n".join(lines)
